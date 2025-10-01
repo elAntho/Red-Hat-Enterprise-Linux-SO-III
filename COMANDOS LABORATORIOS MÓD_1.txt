@@ -1,0 +1,30 @@
+---- Configuración de parametros de red ----
+
+nmcli show connection
+nmcli connection modify ens33 ipv4.method auto
+nmcli connection modify ens33 ipv4.method manual ipv4.addresses ---.---.--.- ipv4.gateway ---.---.--.- ipv4.dns "0.0.0.0 0.0.0.0"
+nmcli connection up ens33
+nmcli connection reload
+nmtui
+vin /etc/NetworkManager/system-connections/ens33.connection
+
+---- Gestion de Usuario y grupos ----
+
+useradd (usuario)
+usermod -aG (grupo) (usuario)
+groupadd (grupo)
+userdel 
+groupdel
+
+---- Gestion de Permisos de archivos ----
+
+mkdir materia
+cd materia
+vi estudiante.txt
+chmod 700 estudiante.txt
+chmod 070 estudiante.txt
+cd ../
+mkdir materia2 
+cd materia2
+cp /home/acapellan/materia/estudiante.txt .
+rmdir materia --ignore-fail-on-non-empty
