@@ -15,7 +15,9 @@ dnf clean all
 
 Comandos usados practica 2
 
-nano crontab -e 
+nano crontab -e
+dnf update -y
+/sbin/shutdown -r now
 ls /tmp
 at now +1 minute
 rm -rf /tmp/*
@@ -31,3 +33,4 @@ Comandos usados practica 4
 
 
 ============================================
+
