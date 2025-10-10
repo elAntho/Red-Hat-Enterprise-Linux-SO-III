@@ -15,6 +15,12 @@ dnf clean all
 
 Comandos usados practica 2
 
+nano crontab -e 
+ls /tmp
+at now +1 minute
+rm -rf /tmp/*
+ls /tmp
+
 ============================================
 
 Comandos usados practica 3
@@ -22,5 +28,6 @@ Comandos usados practica 3
 ============================================
 
 Comandos usados practica 4
+
 
 ============================================
