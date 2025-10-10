@@ -1,0 +1,26 @@
+Comandos usados practica 1
+
+dnf update
+dnf upgrade
+dnf repolist all
+dnf search bashtop
+git clone https://github.com/aristocratos/bashtop.git
+cd /bashtop
+ls
+./bashtop
+yes | rm -f bashtop
+dnf clean all
+
+============================================
+
+Comandos usados practica 2
+
+============================================
+
+Comandos usados practica 3
+
+============================================
+
+Comandos usados practica 4
+
+============================================
