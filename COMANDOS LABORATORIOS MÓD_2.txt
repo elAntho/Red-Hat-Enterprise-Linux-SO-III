@@ -27,10 +27,26 @@ ls /tmp
 
 Comandos usados practica 3
 
+lsblk
+fdisk /dev/---
+m
+mkfs.ext4 /dev/---
+pwd
+ls
+cd Desktop/
+mkdir ----
+mount dev/--- /home/amoises/Desktop/----
+ls
+cd antho/
+touch AdrianAlcantara.txt
+ls 
+cd ..
+umount /dev/sdc1
+cd ..
+mount /dev/sdc1 /mnt
+cd /mnt
+ls
+
 ============================================
 
-Comandos usados practica 4
-
-
-============================================
 
