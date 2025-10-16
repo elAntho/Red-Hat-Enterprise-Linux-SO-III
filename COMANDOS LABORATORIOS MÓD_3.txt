@@ -1,0 +1,18 @@
+Comandos usados practica 1
+
+sudo nano /etc/default/grub
+init=/bin/bash
+mout -o remount,rw /
+passwd root
+touch /.autorelabel
+exec /sbin/init
+
+============================================
+
+Comandos usados practica 2
+
+============================================
+
+Comandos usados practica 3
+
+============================================
