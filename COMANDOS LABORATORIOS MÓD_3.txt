@@ -27,5 +27,18 @@ chmod +x
 
 Comandos usados practica 3
 
+ping
+sudo systemctl status sshd
+ssh user@ip
+exit
+ssh-keygen
+notepad direccionDelaLlavePublica
+mk dir .ssh
+cd .ssh
+sudo nano authorized_keys
+LlavePublica
+ssh user@ip
+
 
 ============================================
+
