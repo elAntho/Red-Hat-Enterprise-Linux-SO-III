@@ -1,0 +1,31 @@
+Comandos usados practica 1
+
+sudo dnf install hhtpd
+sudo systemctl status httpd
+sudo su
+cd /var/www/html
+mkdir ---
+cd ./---
+nano index.html 
+(codigo html)
+nano /etc/httpd/conf/httpd.conf
+<VirtualHost *:80>
+	ServerName ---.localhost
+	DocumentRoot "/var/www/html/prueba"
+	ServerAdmin root@localhost
+</VirtualHost>
+
+nano /etc/hosts/
+127.0.0.1 ---.localhost
+
+systemctl restart httpd
+
+============================================
+
+Comandos usados practica 2
+
+============================================
+
+Comandos usados practica 3
+
+============================================
