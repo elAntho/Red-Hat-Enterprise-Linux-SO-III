@@ -24,6 +24,41 @@ systemctl restart httpd
 
 Comandos usados practica 2
 
+sudo su
+dnf install postfix* mailx cyrus-sasl cyrus-sasl-plain -y
+systemctl enable --now postfix
+nano /etc/postfix/main.cf
+myhostname = antho.redhat.com
+mydomain = redhat.com
+myorigin = $myhostname
+inet_interfaces = all
+inet_protocols = ipv4
+mynetworks = (ip de la maquina), (ip loopback o apipa)
+home_mailbox = /Maildir
+relayhost = [smtp.gmail.com]:587
+smtp_use_tls = yes
+smtp_sasl_auth_enable = yes
+smtp_sasl_security_options = noanonymous
+smtp_tls_security_level = encrypt
+smtp_sasl_password_maps = lmdb:/etc/postfix/sasl_passwd
+smtp_tls_session_cache_database = lmdb:${data _directory}/smtp_scache
+nano /etc/postfix/sasl_passwd
+[smtp.gmail.com]:587 (correo de origen):contraseña de aplicaciones google
+postmap /etc/postfix/sasl_passwd
+chmod 600 /etc/postfix/sasl_passwd
+chown root:root /etc/postfix/sasl_passwd /etc/postfix/sasl_passwd.lmdb
+mkdir -p /Maildir/{cur, new, tmp}
+systemctl restart postfix
+systemctl enable --now postfix
+firewall-cmd --permanent --add-port=587/tcp
+firewall-cmd --permanent --add-port=25/tcp
+firewall-cmd --permanent --add-port=465/tcp
+firewall-cmd --reload
+postmap /etc/postfix/sasl_passwd
+systemctl restart postfix
+systemctl enable --now postfix
+echo "cuerpo del mensaje" | mailx -s "asunto" destino@gmai.com
+
 ============================================
 
 Comandos usados practica 3
