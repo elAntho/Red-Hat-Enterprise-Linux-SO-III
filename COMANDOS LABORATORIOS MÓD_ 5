@@ -1,0 +1,35 @@
+Comandos usados practica 1
+
+mkdir (nombre de la carpeta)
+cd (carpeta)
+touch sync{001..100}.txt
+ls
+*EN EL SERVIDOR REMOTO*
+cd Desktop
+mkdir carpeta
+cd carpeta ls
+*EN EL NODO PRINCIPAL*
+cd ..
+rsync -avz /home/amoises/Desktop/carpeta (ip del servidor remoto)/:home/amoises/Desktop/carpetaDestino
+nano (nombre script).sh
+#!/bin/bash
+(comando usado en la sincronizacion)
+guardamos y salimos
+chmod +x nombrescript.sh
+crontab -e
+* * * * * /home/amoises/Desktop/nombrescript.sh
+:wq!
+cd carpeta creada al inicio
+touch pruebaFinal.txt
+crear el par de llaves ssh
+esperar un minuto
+
+============================================
+
+Comandos usados practica 2
+
+============================================
+
+Comandos usados practica 3
+
+============================================
