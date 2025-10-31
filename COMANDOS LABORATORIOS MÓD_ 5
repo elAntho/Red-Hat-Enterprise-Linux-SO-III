@@ -28,6 +28,30 @@ esperar un minuto
 
 Comandos usados practica 2
 
+En ambos nodos:
+sudo /etc/hosts
+ipNodo1 nodo1.cluster.lan nodo1
+ipNodo2 nodo2.cluster.lan nodo2
+sudo subscription-manager repos --enable NombreDelRepositorio/ID
+sudo dnf install pacemaker corosync pcs -y
+sudo systemctl stop firewalld
+sudo systemctl disable firewalld
+sudo passwd hacluster
+sudo systemctl start pcsd
+
+En el nodo 1:
+sudo pcs host auth nodo1 nodo2
+sudo pcs cluster setup pollosAmarillos nodo1 nodo1 --start --enable
+sudo pcs property set stonith-enabled=false
+sudo pcs property set no-quorum-policy=ignore
+sudo pcs resource create VIP_pollitos ocf:heartbeat:IPaddr2 ip= IpFlotanteQueElijas op monitor interval=5s
+sudo pcs status
+
+En el host:
+ping IpFlotante
+
+*apagamos/reiniciamos el nodo sobre el cual la ip esta corriendo
+
 ============================================
 
 Comandos usados practica 3
