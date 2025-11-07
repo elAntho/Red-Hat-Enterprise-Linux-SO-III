@@ -52,6 +52,99 @@ sudo firewall-cmd --reload
 
 Comandos usados practica 3
 
+# Actualizar sistema
+sudo dnf update -y
+
+
+# Habilitamos los repositorios necesarios (el primero es EPEL y el segundo es CodeReady Builder (requiere subscripción en RHEL, pero en Rocky se puede simular))
+sudo dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm -y
+sudo dnf config-manager --set-enabled codeready-builder-for-rhel-10-x86_64-rpms
+sudo dnf clean all
+
+# Ahora, para configurar librerías, nos ubicamos en el archivo:
+sudo nano /etc/ld.so.conf.d/local.conf   
+
+# Agregamos:
+/usr/local/lib
+/usr/local/lib64
+
+# Guardamos, cerramos, y actualizamos el caché de librerías:
+sudo ldconfig
+
+
+# Instalar dependencias
+sudo dnf install flex bison gcc gcc-c++ make cmake autoconf libtool git nano unzip wget \
+libpcap-devel pcre2-devel hwloc-devel openssl-devel zlib-devel luajit-devel \
+pkgconfig pkgconf libunwind-devel libnfnetlink-devel libnetfilter_queue-devel \
+libmnl-devel xz-devel gperftools-devel libuuid-devel -y
+
+
+# Instalar la dependencia libdnet desde GitHub:
+cd ~
+git clone https://github.com/dugsong/libdnet.git
+cd libdnet
+./configure --without-check
+make
+sudo make install
+sudo ldconfig
+
+
+# Instalar libdaq (Data Acquisition Library, la biblioteca utilizada por Snort para la captura de paquetes de red). Lo haremos clonando un repositorio con los paquetes de instalación:
+cd ~
+git clone https://github.com/snort3/libdaq.git
+cd libdaq && ./bootstrap && ./configure && make && sudo make install
+sudo ldconfig && cd ..
+
+# Instalar Snort (estaremos clonando el repositorio de la instalación)
+cd ~
+git clone https://github.com/snort3/snort3.git
+cd snort3
+export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH
+export PKG_CONFIG_PATH=/usr/local/lib64/pkgconfig:$PKG_CONFIG_PATH
+export CFLAGS="-O3"
+export CXXFLAGS="-O3 -fno-rtti"
+./configure_cmake.sh --prefix=/usr/local/snort --enable-tcmalloc
+cd build/ && make -j$(nproc) && sudo make -j$(nproc) install
+cd ../.. && sudo ldconfig
+
+
+# Crear el enlace simbólico (acceso directo) desde la ubicación donde se instaló Snort manualmente hacia una ubicación que está en el PATH del sistema:
+sudo ln -s /usr/local/snort/bin/snort /usr/bin/snort
+
+
+# Verificar la instalación:
+snort -V
+
+
+# Configurar snort.lua para definir la red interna:
+sudo nano /usr/local/snort/etc/snort/snort.lua
+
+
+# Editamos la línea "HOME_NET" con nuestra dirección IP y máscara de la maquina virtual ESPECIFICA:
+HOME_NET = '/24'
+
+
+# Validamos la sintaxis del archivo (verificar que todo esté en orden):
+snort -T -c /usr/local/snort/etc/snort/snort.lua
+
+
+# Activar modo promiscuo (configuración especial de una tarjeta de red (NIC) que permite que esta capture y procese todos los paquetes que pasan por la red)
+sudo ip link set dev enp1s0 promisc on
+
+# Crear reglas de tráfico: ingresamos al archivo correspondiente...
+sudo nano /usr/local/snort/etc/snort/local.rules
+
+# Luego, agregamos las reglas:
+alert icmp any any -> $HOME_NET any (msg:"ALERTA: Trafico ICMP (Ping) detectado!"; sid:10000001; rev:1;)
+alert tcp any any -> $HOME_NET 21 (msg:"ALERTA: Trafico FTP (puerto 21) detectado!"; sid:10000002; rev:1;)
+alert tcp any any -> $HOME_NET 22 (msg:"ALERTA: Trafico SSH (puerto 22) detectado!"; sid:10000003; rev:1;)
+alert tcp any any -> $HOME_NET 80 (msg:"ALERTA: Trafico HTTP (puerto 80) detectado!"; sid:10000004; rev:1;)
+
+# Ejecutamos Snort con las reglas creadas:
+sudo snort -c /usr/local/snort/etc/snort/snort.lua \
+-R /usr/local/snort/etc/snort/local.rules \
+-i enp1s0 -A alert_fast -s 65535 -k none
+
 ============================================
 
 Comandos usados practica 4
