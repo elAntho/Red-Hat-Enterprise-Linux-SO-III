@@ -60,7 +60,69 @@ Luego del reinicio encendemos la VM y en ubuntu ponemos ls /mnt/so3
 
 Comandos usados practica 2
 
+## Instalar y habilitar samba
 
+sudo dnf install samba samba-client -y
+sudo systemctl enable --now smb nmb
+
+## Crear usuarios y grupos
+
+sudo groupadd  grupo_samba
+sudo useradd -G grupo_samba usuario_samba
+Asignamos password de samba: sudo smbpasswd -a usuario_samba
+
+## Crear la carpeta
+
+sudo mkdir -p /samba/compartido
+
+## Crear archivos y darles permiso
+
+sudo touch /samba/compartido/adrian{001..100}.txt
+sudo chown -R :grupo_samba /samba/compartido
+sudo chmod -R 775 /samba/compartido
+
+## Configuramos el selinux para indicar que la carpeta es de samba
+
+sudo chcon -R -t samba_share_t /samba/compartido
+sudo setsebool -P samba_export_all_rw on
+
+## Configurar el archivo de samba
+
+sudo nano /etc/samba/smb.conf
+
+[ArchivosAdrian]
+path = /samba/compartido
+valid users = @grupo_samba
+browsable = yes
+writable = yes
+guest ok = no
+read only = no
+
+sudo systemctl restart smb
+
+## Configurar el firewall
+
+sudo firewall-cmd --permanent --add-service=samba
+sudo firewall-cmd --reload
+
+### En windows ### 
+
+Explorador de archivos
+Click derecho en Este equipo
+conectar a unidad de red
+\\192.168.122.143\ArchivosAdrian
+Marcar conectar con otras credenciales
+
+usuario: usuario_samba
+password: 1234
+
+Vamos a adrian99
+el zumzum de la caravela
+Guardar y cerrar
+
+## En rhel
+
+cat /samba/compartido/adrian99.txt
 
 ============================================
 
