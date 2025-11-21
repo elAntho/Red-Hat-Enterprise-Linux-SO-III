@@ -1,5 +1,59 @@
 Comandos usados practica 1
 
+## Configuracion del servidor (RHEL) ##
+
+# Instalamos el servicio
+
+sudo dnf install nfs-utils -y
+
+# creamos la carpeta compartida y le damos permisos
+
+sudo mkdir -p /var/nfs/os3
+cd /var/nfs/os3
+sudo touch Adrian{001..100}.txt
+sudo chown nobody:nobody /var/nfs/os3
+sudo chmod 755 /var/nfs/os3
+
+# Configuramos los exports para definir quien puede entrar
+
+sudo nano /etc/exports
+/var/nfs/os3 192.168.122.1cd/24(rw,sync,no_subtree_check)
+
+# configuracion de firewall
+
+sudo firewall-cmd --permanent --add-service={nfs,mountd,rpc-bind}
+sudo firewall-cmd --reload
+
+# Iniciamos el servidor nfs
+sudo systemctl enable --now nfs-server
+
+# Aplicamos la configuracion de exportacion
+sudo exportfs -arv
+
+## Configuracion del cliente (Ubuntu) ##
+
+sudo apt update
+sudo apt install nfs-common -y
+
+# Crear el punto de montaje
+
+sudo mkdir -p /mnt/so3_client
+
+# montar manualmente para probar
+
+sudo mount -t nfs 192.168.122.143:/var/nfs/os3 /mnt/so3_client
+
+# probar
+
+ls -l /mnt/os3_client
+
+## Montaje automatico
+
+sudo nano /etc/fstab
+Al final del archivo poner: 192.168.122.143:/var/nfs/os3 /mnt/so3_client nfs defaults 0 0
+Antes de reiniciar: sudo mount -a
+
+Luego del reinicio encendemos la VM y en ubuntu ponemos ls /mnt/so3
 
 
 ============================================
