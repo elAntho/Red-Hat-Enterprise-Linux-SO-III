@@ -1,0 +1,149 @@
+Comandos usados practica 1
+
+## Agregar el repositorio de docker
+
+sudo dnf install -y yum-utils
+sudo dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+## Instalar, iniciar y habilitar
+
+sudo dnf install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+
+sudo systemctl enable --now docker
+
+## Crear directorio de volumen
+
+sudo mkdir -p /home/website
+
+## Crear el index.html
+
+sudo nano /home/website/index.html
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NGINX En Docker</title>
+</head>
+<body>
+    <h1>Anthony De Los Santos</h1>
+    <h1>2025-1335</h1>
+</body>
+</html>
+
+## Descargar imagen y crear el docker
+
+sudo docker run -d \
+  --name SO3-nginx \
+  -p 8888:80 \
+  -v /home/website:/usr/share/nginx/html:Z \
+  nginx:latest
+  
+## Abrir el puerto 
+
+sudo firewall-cmd --permanent --add-port=8888/tcp
+sudo firewall-cmd --reload
+
+## Ver contenido
+
+192.168.122.143:8888
+
+
+============================================
+
+Comandos usados practica 2
+
+## Descargar la version de la community edition
+
+sudo docker pull portainer/portainer-ce
+
+## Crear volumen de datos
+
+sudo docker volume create portainer_data
+
+## Crear el contenedor
+
+sudo docker run -d \
+  -p 9443:9443 \
+  --name portainer \
+  --restart=always \
+  --privileged \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v portainer_data:/data \
+  portainer/portainer-ce:latest
+  
+## Abrir el puerto
+
+sudo firewall-cmd --permanent --add-port=9443/tcp
+sudo firewall-cmd --reload
+
+## Entrar
+
+https://127.0.0.1:9443
+
+123456789011
+
+============================================
+
+Comandos usados practica 3
+
+## Instalacion de docker compose
+
+docker compose version (se instalo de la practica anterior)
+
+## Crear el archivo para el proyecto
+
+mkdir ~/mi_wordpress
+cd ~/mi_wordpress
+
+## Crear el .yml
+
+nano docker-compose.yml
+
+version: '3.1'
+
+services:
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: password_secreto
+      MYSQL_DATABASE: wordpress_db
+      MYSQL_USER: wordpress_user
+      MYSQL_PASSWORD: wordpress_password
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: always
+
+  wordpress:
+    depends_on:
+      - db
+    image: wordpress:latest
+    ports:
+      - "8000:80"
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wordpress_user
+      WORDPRESS_DB_PASSWORD: wordpress_password
+      WORDPRESS_DB_NAME: wordpress_db
+    volumes:
+
+      - ./wp-content:/var/www/html/wp-content:Z
+    restart: always
+
+volumes:
+  db_data:
+  
+## Configurar el firewall
+
+sudo firewall-cmd --permanent --add-port=8000/tcp
+sudo firewall-cmd --reload
+
+## desplegar 
+
+docker compose up -d
+docker compose ps -a
+
+## ver en http://192.168.122.143:8000
+
+============================================
