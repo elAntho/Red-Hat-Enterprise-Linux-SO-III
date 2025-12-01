@@ -1,0 +1,282 @@
+Comandos usados practica 1
+
+# WEBMIN
+
+# Agregar el repositorio de webmin
+
+Crear un archivo con:
+sudo nano /etc/yum.repos.d/webmin.repo
+
+[Webmin]
+name=Webmin Distribution Neutral
+#baseurl=https://download.webmin.com/download/yum
+mirrorlist=https://download.webmin.com/download/yum/mirrorlist
+enabled=1
+gpgcheck=1
+gpgkey=https://download.webmin.com/jcameron-key.asc
+
+# Instalar dependencias y webmin
+
+sudo dnf makecache
+sudo dnf install webmin --nogpgcheck -y
+
+# Habilitar el servicio
+
+sudo systemctl enable --now webmin
+
+# Configurar firewall
+
+sudo firewall-cmd --permanent --add-port=10000/tcp
+sudo firewall-cmd --reload
+
+# Entrar con https://192.168.122.143:10000
+
+# PRÁCTICAS:
+
+Administración de usuarios: Crear, y eliminar una cuenta de usuario: System -> Users and Groups.
+Gestión de servicios: Iniciar, detener y reiniciar servicio del sistema (Ej SSH): System -> Bootup and Shutdown
+Configuración de red: Configurar una IP estatica en interfaces de red: Networking -> Network Configuration.
+Administración de software: Instalar Alguna herramienta: System -> Software Packages.
+Gestión de archivos y directorios: Explorar, editar un archivo y eliminarlo: Tools -> File Manager
+Monitorización del sistema: Supervisar el rendimiento del sistema,(Memoria, Procesador Armacenamiento): Dashboard
+
+============================================
+
+Comandos usados practica 2
+
+dop_v1_cd9e409ffa7c90edfc801beb7c8981d6c3d2ca115ac1b853ec679c2151361e04
+
+## Ir a API y crear un nuevo token
+Darle permisos de escritura y guardarlo
+
+# Instalar terraform en RHEL
+
+sudo dnf install -y yum-utils
+sudo dnf config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+
+sudo sed -i 's/$releasever/9/g' /etc/yum.repos.d/hashicorp.repo ##Esto obliga al sistema a usar los repositorios de RHEL 9 #
+
+sudo dnf install terraform -y
+terraform -version
+
+## Crear la llave ssh
+ssh-keygen -t rsa
+esta en: ~/.ssh/id_rsa.pub
+
+## Crear una carpeta para el proyecto
+
+mkdir ~/do_terraform
+cd ~/do_terraform
+export DIGITALOCEAN_TOKEN="token de digital ocean"
+
+## Crear el archivo de configuracion
+
+nano main.tf
+
+terraform {
+  required_providers {
+    digitalocean = {
+      source = "digitalocean/digitalocean"
+      version = "~> 2.0"
+    }
+  }
+}
+
+provider "digitalocean" {}
+
+resource "digitalocean_ssh_key" "mi_llave" {
+  name       = "Llave-RHEL-Ansible"
+  public_key = file("~/.ssh/id_rsa.pub")
+}
+
+resource "digitalocean_droplet" "os3_vm" {
+  image    = "ubuntu-22-04-x64"
+  name     = "OS3vm"
+  region   = "nyc1"
+  size     = "s-1vcpu-1gb"
+  ssh_keys = [digitalocean_ssh_key.mi_llave.fingerprint]
+}
+
+output "ip_address" {
+  value = digitalocean_droplet.os3_vm.ipv4_address
+}
+
+## Desplegar la VM
+terraform init
+terraform plan
+terraform apply
+
+## Validacion
+
+ssh root@ip_terraform y en digitalocean
+
+## Destruir
+
+terraform destroy
+
+============================================
+
+Comandos usados practica 3
+
+## PRIMERA PARTE ##
+
+# Instalar ansible y la libreria para windows
+
+sudo dnf install python3-pip -y
+pip3 install ansible pywinrm
+
+# Crear el usuario ansible en el controlador
+
+sudo useradd ansible
+sudo passwd ansible
+
+# Crear las llaves SSH para el usuario ansible
+
+su - ansible
+ssh-keygen -t rsa
+
+
+## SEGUNDA PARTE ##
+
+#Entrar a la VM de terraform en Digi
+
+ssh root@ip_terraform
+
+# Crear el usuario ansible y darle permisos de sudo
+
+adduser ansible
+echo "ansible ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ansible
+
+# En RHEL 10 normal:
+
+ssh-keygen -t rsa
+cat ~/.ssh/id_rsa.pub (copiar todo)
+
+# En la VM de Digi
+
+su - ansible
+mkdir ~/.ssh
+chmod 700 ~/.ssh
+nano ~/.ssh/authorized_keys
+ (AQUI VA LA LLAVE DE LA MAQUINA _USUARIO NORMAL_ )
+chmod 600 ~/.ssh/authorized_keys
+ 
+# En RHEL 10 normal, como usuario ansible
+
+ssh-keygen -t rsa
+cat ~/.ssh/id_rsa.pub (copiar todo)
+
+# En la VM de Digi
+
+su - ansible
+nano ~/.ssh/authorized_keys
+ (AQUI TAMBIEN VA LA LLAVE DEL USER ANSIBLE DE NUESTRA VM)
+
+# En RHEL 10 normal, como usuario ansible
+
+ssh ansible@ip_digi_terraform
+
+## TERCERA PARTE ##
+
+# En windows 
+
+Crear un usuario local llamado ansible y agregarlo al grupo de administradores
+
+# Habilitar la administracion remota
+
+Abrir powershell como adminstrador:
+
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+$url = "https://raw.githubusercontent.com/ansible/ansible/stable-2.9/examples/scripts/ConfigureRemotingForAnsible.ps1"
+$file = "$env:temp\ConfigureRemotingForAnsible.ps1"
+(New-Object -TypeName System.Net.WebClient).DownloadFile($url, $file)
+powershell.exe -ExecutionPolicy ByPass -File $file
+
+## CUARTA PARTE ##
+
+# En RHEL 10 usuario normal
+
+Para crear el inventario, creamos el directorio y el archivo
+
+sudo mkdir -p /etc/ansible
+sudo nano /etc/ansible/hosts
+
+[linux]
+159.89.51.241 ansible_user=ansible
+
+[win]
+192.168.122.158 ansible_user=ansible ansible_password=1234 ansible_connection=winrm ansible_winrm_server_cert_validation=ignore
+
+# Hacer ping
+
+ansible linux -m ping
+ansible win -m win_ping
+
+============================================
+
+Comandos usados practica 4
+
+# Copiar un archivo en windows
+
+crear en el escritorio un txt llamado prueba
+
+ansible win -m win_copy -a "src='C:/Users/ansible/Desktop/prueba.txt' dest='C:/Users/ansible/Documents/' remote_src=yes"
+
+# Reiniciar la VM de digi
+
+ansible linux -m reboot -b
+
+============================================
+
+Comandos usados practica 5
+
+# Playbook de windows (notepad++)
+
+nano instalar_notepad.yml
+
+---
+- name: Instalacion de aplicaciones en Windows
+  hosts: win
+  tasks:
+    - name: Instalar Chocolatey
+      win_chocolatey:
+        name: chocolatey
+        state: present
+
+    - name: Instalar Notepad++
+      win_chocolatey:
+        name: notepadplusplus
+        state: present
+        
+# Playbook para Linux (NGINX)
+
+nano instalar_nginx.yml
+
+---
+- name: Configurar Servidor Web NGINX
+  hosts: linux
+  become: yes
+  tasks:
+    - name: Actualizar repositorios e instalar NGINX
+      apt:
+        name: nginx
+        state: present
+        update_cache: yes
+
+    - name: Iniciar el servicio y habilitarlo al arranque
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+        
+# Ejecutar el de windows
+
+ansible-playbook instalar_notepad.yml
+
+# Ejecutar el de windows
+
+ansible-playbook instalar_nginx.yml
+
+http://159.89.51.241
+
+============================================
