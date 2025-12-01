@@ -44,8 +44,6 @@ Monitorización del sistema: Supervisar el rendimiento del sistema,(Memoria, Pro
 
 Comandos usados practica 2
 
-dop_v1_cd9e409ffa7c90edfc801beb7c8981d6c3d2ca115ac1b853ec679c2151361e04
-
 ## Ir a API y crear un nuevo token
 Darle permisos de escritura y guardarlo
 
