@@ -85,5 +85,6 @@ vrrp_instance VI_1 {
     }
 }
 
+configuramos el nodo 2 como backup (prioridad 50 y state BACKUP)
 *iniciar keepalived y hacer comprobacion desde el navegador
 ============================================
