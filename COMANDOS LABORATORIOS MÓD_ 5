@@ -58,15 +58,29 @@ ping IpFlotante
 Comandos usados practica 3
 
 sudo dnf install httpd -y
-sudo nano /var/www/html/index.html
-(plantilla html)
+sudo nano /var/www/html/index.html (en ambos nodos, maestro y respaldo)
+
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Simple</title>
+</head>
+<body>
+    <h1>Anthony Moises</h1>
+    <p>2025-1335</p>
+</</body>
+
+
 sudo systemctl start httpd
 sudo systemctl enable httpd
 sudo systemctl stop firewalld
 sudo systemctl disable firewalld
 *en el navegador poner las ip de ambos nodos
-sudo dnf install keepalived -y
-sudo nano /etc/keepalived/keepalived.conf
+sudo dnf install keepalived -y (ambos nodos)
+sudo nano /etc/keepalived/keepalived.conf (nodo 1)
 
 #Configuracion para keepalived
 
@@ -87,5 +101,6 @@ vrrp_instance VI_1 {
 }
 
 configuramos el nodo 2 como backup (prioridad 50 y state BACKUP)
-*iniciar keepalived y hacer comprobacion desde el navegador
+*iniciar keepalived
+* hacer ping a la IP flotante y ponerla en el navegador
 ============================================
