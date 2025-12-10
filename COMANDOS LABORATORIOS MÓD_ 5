@@ -32,7 +32,8 @@ En ambos nodos:
 sudo /etc/hosts
 ipNodo1 nodo1.cluster.lan nodo1
 ipNodo2 nodo2.cluster.lan nodo2
-sudo subscription-manager repos --enable NombreDelRepositorio/ID
+sudo dnf repolist --all
+sudo subscription-manager repos --enable rhel-10-for-x86_64-highavailability-rpms
 sudo dnf install pacemaker corosync pcs -y
 sudo systemctl stop firewalld
 sudo systemctl disable firewalld
